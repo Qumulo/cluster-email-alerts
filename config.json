@@ -1,0 +1,61 @@
+{
+    "email_settings":{
+        "server_address":"your-domain.com",
+        "sender_address":"cluster@your-domain.com"
+    },
+    "cluster_settings":{
+        "cluster_name":"cluster",
+        "cluster_address":"cluster.eng.your-domain.com",
+        "username":"admin",
+        "password":"admin",
+        "rest_port":8000
+    },
+    "quota_rules":[
+            {
+                "name":"FriendlyQuotaName",
+                "path":"/exact/cluster/path/",
+                "thresholds":[ 80.0, 90.0, 95.0 ],
+                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
+                "include_capacity":true,
+                "custom_msg":"A custom message to be sent to the recipients."
+            },
+            {
+                "name":"AnotherFriendlyQuota",
+                "path":"/another_path/",
+                "thresholds":[ 80.0, 90.0, 95.0 ],
+                "mail_to":[ "users@your-domain.com" ],
+                "include_capacity":false,
+                "custom_msg":"Please follow up with IT at 1-800-111-11111"
+            },
+            {
+                "name":"Example - Marketing - Videos",
+                "path":"/marketing/videos/",
+                "thresholds":[ 80.0, 90.0, 95.0 ],
+                "mail_to":[ "dl_makerting_mgr@your-company.com"],
+                "include_capacity":false,
+                "custom_msg":"Your team is close to exceeding its quota. Please follow up with IT at 1-800-111-1111 for additional storage."
+            }
+    ],
+    "capacity_rules":[
+            {
+                "thresholds":[ 75.0, 80.0, 90.0, 95.0 ],
+                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
+                "custom_msg":"Warning! Please do something, cluster almost full."
+            },
+            {
+                "thresholds":[ 80.0, 90.0, 95.0 ],
+                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
+                "custom_msg":""
+            }
+    ],
+    "replication_rules":[
+            {
+                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
+                "custom_msg":"Replication gone wrong on this cluster."
+            },
+            {
+                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
+                "custom_msg":""
+            }
+    ]
+}
