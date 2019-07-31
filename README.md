@@ -10,70 +10,82 @@
 
 
 ## Introduction
-This script generates alerts for a Qumulo cluster using the REST API.The Qumulo API Tools are required to make the script work and and they areavailable for download from your Qumulo cluster. For more information, please check out the [Qumulo GitHub](https://qumulo.github.io/) page for more information on this. The script is aimed to be customized to the user's desire using 'rules' or a list of several JSON schemas; each with its own configurations. Currently, the script generates alerts on 3 separate categories:
+This script generates email alerts for a Qumulo cluster using the REST API. The Qumulo API tools are required to make the script work and and they are available for download from your Qumulo cluster. For more information, please check out the [Qumulo GitHub](https://qumulo.github.io/) page for more information on the API. The script is aimed to be customized to the user's desire using 'alert rules' or a list of several JSON schemas; each with its own configuration. Currently, the script generates three different types of alerts:
 
-  * Cluster Capacity by Threshold (aka. Soft Quota Alerts)
+  * Cluster Capacity by Threshold
   * Directory Quotas by Threshold
   * Replication Relationships by Error (Both Source & Target)
 
-If any of the alert conditions are triggered, an email will be sent to the configured recipients. All alerts can also include a custom message in case the sysadmin or user would like to, just by specifying the `custom_msg` field.
+If any of the alert conditions are triggered, a single email will be sent to all of the configured recipients. Any alert can also include a custom message by filling in the `custom_msg` field for each 'rule'.
 
-The alerts are sent once every time the script is run. The expected method to to run this script is to have a `cron` job periodically running this at your desired cadence.
+The alert conditions are checked a single time when the script is run. The suggested method to run this script is via a `cron` job which periodically executes the script. For more information regarding `cron` please check out [Ubuntu's Cron How To](https://help.ubuntu.com/community/CronHowto).
 
-Also, all email alerts include a time stamp showing when they were sent.
+Lastly, all email alerts include a time stamp indicating when the alert was sent.
 
 ## Installation
-The installation is easy, and just requires the following:
+The script has the following requirements:
 
-  * A Linux machine.
-  * Python 2.7
-  * Qumulo's Download Command-Line Tools (aka. API Tools)
+  * A Linux machine, preferrably Ubuntu 16.04 or newer.
+  * Python 2.7.15 or newer. NOTE: Python3 is not supported.
+  * Qumulo Core 2.12.0 or newer Command-Line Tools (aka. API Tools)
   * An SMTP server running on port TCP 25. (TLS not available.)
 
-The latest version of the tested Command-Line Tools is Qumulo Core 2.12.0. To
-install and use this script:
+To install and use this script:
 
   1. Download the Command-Line Tools (API Tools) from your Qumulo cluster. This can be done from going to the `API & Tools` tab on your cluster's WebUI.
   2. Unzip the downloaded `qumulo_api.zip` using your favorite utility.
-  3. Clone this repository using `git` or download the `cluster_alerts.py` and the `config.json` files and placing them in the same directory. If you have questions cloning a repo, please see GitHub's [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository).
-  4. Copy the `cluster_alerts.py` script to the `./qumulo_api` directory.
+  3. Clone this repository using `git` or download the `cluster-email-alerts.py` and the `config.json` files and placing them in the same directory. If you have questions cloning a repo, please see GitHub's [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository).
+  4. Copy the `cluster-email-alerts.py` script and the `config.json` file to the `./qumulo_api` directory.
+  5. Edit the `config.json` file to set up your alerting rules.
+  5. Invoke the script by running `cluster-email-alerts.py --config config.json`. (You may have to `chmod a+x cluster-email-alerts.py`.)
 
-## Configuration
-At this point, it is expected that you have a Qumulo cluster with the API Tools and `cluster_alerts.py` script downloaded. Additionally, the API Tools are unzipped and the `cluster_alerts.py` script resides in the `./qumulo_api` directory. Once this is done, you can begin modifying the `config.json` (or any other name) to suit your needs. The general steps would be:
+## Alert Rule Configuration
+At this point, it is expected that you have a Qumulo cluster with the API Tools and `cluster-email-alerts.py` script downloaded. Additionally, the API Tools are unzipped with `cluster-email-alerts.py` and `config.json` residing in the `./qumulo_api` directory. If this is done, you can begin modifying the `config.json` to suit your needs. The general steps are:
 
   1. Modify the `config.json` to suit your needs. The fields for this file are described after this section.
-  2. Set up a `cron` job to run as often as you like to check for alerts. See [CronHowto](https://help.ubuntu.com/community/CronHowto) if you have any questions. Example command `./cluster_alerts.py --config /root/config.json`
+  2. Set up a `cron` job to run as often as you like to check for alerts. See [CronHowto](https://help.ubuntu.com/community/CronHowto) if you have any questions. Example command `./cluster-email-alerts.py --config /root/config.json`
 
 The `config.json` file contains 5 schemas and each can have multiple objects. These objects are what we call a `rule` and are individually interpreted by the script. The schemas are:
 
   1. Email Settings
-     - `server_address` - The email server or relay that will handle our email.
-     - `sender_address` - The email address (fake or real) that the alerts should have in the 'From:' field. Ideally, this would be the cluster's name.
+     - `server_address` - The email server or relay that will route the emails sent by the script.
+     - `sender_address` - The email address (fake or real) that the alerts should have in the 'From:' field. A suggestion is to use the cluster's name.
+
   2. Cluster Settings
-     - `cluster_name` - Name of the cluster to alert on.
-     - `cluster_address` - FQDN or IP address of the cluster to generate alerts from.
+     - `cluster_name` - A friendly name for the cluster to generate alerts for.
+     - `cluster_address` - FQDN or IP address of the cluster.
      - `username` - The `admin` username to access the REST API.
      - `password` - The `admin` password to access the REST API.
      - `rest_port` - The TCP port on which to access the REST API. Default of 8000.
-  3. Quota Rules - Each JSON object here is treated as a separate alerting rule. This rule triggers when a directory quota exceeds a used percentage threshold. The fields are:
-     - `name` - A friendly name for the quota alert. Some paths can be very long or not user friendly.
+
+  3. Quota Rules - This rule triggers when a directory quota exceeds a used percentage threshold. The fields are:
+     - `name` - A friendly name for the quota alert as some paths can be very long or descriptive enough.
      - `path` - The path on which a directory quota exists. This path will be looked up using the API to get the current usage.
      - `thresholds` - A list of integers that describe the thresholds at which to send an alert. If exceeded, the script will only send the highest exceeded threshold for each rule.
-     - `mail_to` - A list of email addresses to send an alert to for this specific rule.
+     - `mail_to` - A list of email addresses to send an alert to; only for this specific rule.
      - `include_capacity` - A boolean that allows you to include or exclude including the current total capacity of the cluster.
      - `custom_msg` - A field that will be included with each quota rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
-  4. Capacity Rules - Each JSON object here is treated as a separate alerting rule. This rule will trigger if the cluster exceeds a certain used percentage threshold. The fields are:
+
+  4. Capacity Rules - This rule will trigger if the cluster exceeds a certain used percentage threshold. The fields are:
      - `thresholds` - Same as the quota, what thresholds to alert on. Only the highest matching threshold will be alerted on.
      - `mail_to` - Who to send the alert to.
      - `custom_msg` - A field that will be included with each rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
-  5. Replication Rules - Each JSON object here is treated as a separate alerting rule for ALL replication relationships on the cluster. The fields are:
+
+  5. Replication Rules - This rule will trigger if any replication relationship has an error; source or target. The fields are:
      - `mail_to` - Who to send the alert to.
      - `custom_msg` - A field that will be included with each rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
 
-If you want a different `custom_msg` to be sent depending on the quota or recipients, just duplicate the JSON Object (stuff between the `{}` in the `config.json` and modify the message and recipients.
+## FAQ
+
+  1. What if I want multiple emails to be sent for the same quota?
+     - Add multiple quota rules. Each one will be triggered individually.
+  2. Will multiple emails be sent if a quota exceeds them?
+     - No, a single email will be sent for the highest exceeded threshold.
+  3. How do I send different `custom_msg` depending on the threshold?
+     - Create multiple rules, with a different `custom_msg` each. Note that this can result in sending two emails, one for each rule.
 
 ## Examples
-An example configuration is uploaded to this GitHub for ease of use. Simply fill in the required fields, adding a JSON object for each rule, as needed. The email alerts can look like:
+An example configuration is uploaded to this GitHub for ease of use, `config.json`. Use this as a template to build your own rule set. The email alerts will be similar to these:
 
 ### Quota Alert
 
@@ -130,6 +142,7 @@ The script has some limitations or caveats; they are:
   * It will send one email alert per JSON object in the configuration file.
   * If multiple alerts for the same path are required, multiple JSON objects should be present.
   * If you would like to test this on a local email server, please see [Test Email Server](#test-email-server)
+
 
 ## Test Email Server
 If you do not already have an email server to use, you can create a local one using Ubuntu and some free open source utilities. To set up a test email server on a fresh install of Ubuntu 18.04:
