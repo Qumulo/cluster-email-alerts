@@ -218,6 +218,7 @@ def cluster_capacity_check(email_settings, rest_info, capacity_alerts):
                     int(cluster_stats[0]['free_size_bytes'])
     cluster_pct_used = (float(cluster_used) / float(cluster_capacity)) * 100
 
+    send_alert = False
     for capacity_alert in capacity_alerts:
         for threshold in capacity_alert['thresholds']:
             if cluster_pct_used > threshold:
