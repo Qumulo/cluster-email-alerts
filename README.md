@@ -32,12 +32,12 @@ The script has the following requirements:
 
 To install and use this script:
 
-  1. Download the Command-Line Tools (API Tools) from your Qumulo cluster. This can be done from going to the `API & Tools` tab on your cluster's WebUI.
-  2. Unzip the downloaded `qumulo_api.zip` using your favorite utility.
-  3. Clone this repository using `git` or download the `cluster-email-alerts.py` and the `config.json` files and placing them in the same directory. If you have questions cloning a repo, please see GitHub's [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository).
-  4. Copy the `cluster-email-alerts.py` script and the `config.json` file to the `./qumulo_api` directory.
-  5. Edit the `config.json` file to set up your alerting rules.
-  5. Invoke the script by running `cluster-email-alerts.py --config config.json`. (You may have to `chmod a+x cluster-email-alerts.py`.)
+  1. Use `pip` to install the Qumulo Python API tools: `pip install qumulo-api`.
+  2. Clone this repository using `git` or download the `cluster-email-alerts.py`.
+  If you have questions cloning a repo, please see GitHub's
+  [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository).
+  3. Use `example_config.json` as a guide to creating a `config.json` with your alerting rules.
+  4. Invoke the script by running `python ./cluster-email-alerts.py --config config.json` from the cloned directory.
 
 ## Alert Rule Configuration
 At this point, it is expected that you have a Qumulo cluster with the API Tools and `cluster-email-alerts.py` script downloaded. Additionally, the API Tools are unzipped with `cluster-email-alerts.py` and `config.json` residing in the `./qumulo_api` directory. If this is done, you can begin modifying the `config.json` to suit your needs. The general steps are:
@@ -54,8 +54,8 @@ The `config.json` file contains 5 schemas and each can have multiple objects. Th
   2. Cluster Settings
      - `cluster_name` - A friendly name for the cluster to generate alerts for.
      - `cluster_address` - FQDN or IP address of the cluster.
-     - `username` - The `admin` username to access the REST API.
-     - `password` - The `admin` password to access the REST API.
+     - `username` - The username to access the REST API.
+     - `password` - The password to access the REST API.
      - `rest_port` - The TCP port on which to access the REST API. Default of 8000.
 
   3. Quota Rules - This rule triggers when a directory quota exceeds a used percentage threshold. The fields are:
@@ -74,6 +74,28 @@ The `config.json` file contains 5 schemas and each can have multiple objects. Th
   5. Replication Rules - This rule will trigger if any replication relationship has an error; source or target. The fields are:
      - `mail_to` - Who to send the alert to.
      - `custom_msg` - A field that will be included with each rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
+
+## Permissions
+This script needs cluster and file system permissions to run. The user provided
+to this script through the config file must be granted the following Qumulo
+privileges:
+```
+PRIVILEGE_FS_ATTRIBUTES_READ
+PRIVILEGE_QUOTA_READ
+PRIVILEGE_REPLICATION_SOURCE_READ
+PRIVILEGE_REPLICATION_TARGET_READ
+```
+
+The `Observers` role is configured with these (and other) privileges by default.
+
+The user must also be granted file system permission to traverse to and to read
+the directories configured with alerts. For example, for an alert on path
+`/foo/bar/`, the user must have Traverse permission on `/` and `foo/`, and Read
+permission on `bar/`.
+
+Alternatively to configuring file system permissions, the user can be granted
+the Qumulo role `PRIVILEGE_FILE_FULL_ACCESS`. This privelege confirs full read
+and write access to the user regardless of file system permissions.
 
 ## FAQ
 
@@ -142,6 +164,7 @@ The script has some limitations or caveats; they are:
   * It will send one email alert per JSON object in the configuration file.
   * If multiple alerts for the same path are required, multiple JSON objects should be present.
   * If you would like to test this on a local email server, please see [Test Email Server](#test-email-server)
+  * To test this script without sending emails, use the flag `--no-emails` when invoking the script.
 
 
 ## Test Email Server
@@ -218,8 +241,10 @@ If all the steps above completed successfully, you should see something like thi
 
 
 If something went wrong and you'd like to retry, uninstall everything with:
-    `sudo apt-get remove postfix`
-    `sudo apt-get purge postfix`
+```
+sudo apt-get remove postfix
+sudo apt-get purge postfix
+```
 
 Then reinstall `postfix` with:
     `sudo apt-get install postfix`
