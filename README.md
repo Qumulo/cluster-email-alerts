@@ -25,25 +25,25 @@ Lastly, all email alerts include a time stamp indicating when the alert was sent
 ## Installation
 The script has the following requirements:
 
-  * A Linux machine, preferrably Ubuntu 16.04 or newer.
-  * Python 2.7.15 or newer. NOTE: Python3 is not supported.
-  * Qumulo Core 2.12.0 or newer Command-Line Tools (aka. API Tools)
+  * A Linux machine, preferably Ubuntu 16.04 or newer.
+  * Python 3.6 or newer. NOTE: Python2 is not supported.
+  * Qumulo API SDK 3.1.1 or newer installed for Python3. (aka. API Tools)
   * An SMTP server running on port TCP 25. (TLS not available.)
 
 To install and use this script:
 
-  1. Use `pip` to install the Qumulo Python API tools: `pip install qumulo-api`.
-  2. Clone this repository using `git` or download the `cluster-email-alerts.py`.
+  1. Use `pip` to install the Qumulo Python API tools: `pip3 install qumulo-api`.
+  2. Clone this repository using `git` or download the `cluster_email_alerts.py`.
   If you have questions cloning a repo, please see GitHub's
   [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository).
   3. Use `example_config.json` as a guide to creating a `config.json` with your alerting rules.
-  4. Invoke the script by running `python ./cluster-email-alerts.py --config config.json` from the cloned directory.
+  4. Invoke the script by running `python ./cluster_email_alerts.py --config config.json` from the cloned directory.
 
 ## Alert Rule Configuration
-At this point, it is expected that you have a Qumulo cluster with the API Tools and `cluster-email-alerts.py` script downloaded. Additionally, the API Tools are unzipped with `cluster-email-alerts.py` and `config.json` residing in the `./qumulo_api` directory. If this is done, you can begin modifying the `config.json` to suit your needs. The general steps are:
+At this point, it is expected that you have a Qumulo cluster with the API Tools installed and the `cluster_email_alerts.py` script downloaded. If this is done, you can create a `config.json` configuration file to suit your needs. The general steps are:
 
-  1. Modify the `config.json` to suit your needs. The fields for this file are described after this section.
-  2. Set up a `cron` job to run as often as you like to check for alerts. See [CronHowto](https://help.ubuntu.com/community/CronHowto) if you have any questions. Example command `./cluster-email-alerts.py --config /root/config.json`
+  1. Use `example_config.json` as a guide to creating a `config.json` with your alerting rules. The fields for this file are described after this section.
+  2. Set up a `cron` job to run as often as you like to check for alerts. See [CronHowto](https://help.ubuntu.com/community/CronHowto) if you have any questions. Example command `./cluster_email_alerts.py --config /root/config.json`
 
 The `config.json` file contains 5 schemas and each can have multiple objects. These objects are what we call a `rule` and are individually interpreted by the script. The schemas are:
 
@@ -94,7 +94,7 @@ the directories configured with alerts. For example, for an alert on path
 permission on `bar/`.
 
 Alternatively to configuring file system permissions, the user can be granted
-the Qumulo role `PRIVILEGE_FILE_FULL_ACCESS`. This privelege confirs full read
+the Qumulo role `PRIVILEGE_FILE_FULL_ACCESS`. This privilege confers full read
 and write access to the user regardless of file system permissions.
 
 ## FAQ
@@ -107,7 +107,7 @@ and write access to the user regardless of file system permissions.
      - Create multiple rules, with a different `custom_msg` each. Note that this can result in sending two emails, one for each rule.
 
 ## Examples
-An example configuration is uploaded to this GitHub for ease of use, `config.json`. Use this as a template to build your own rule set. The email alerts will be similar to these:
+An example configuration is uploaded to this GitHub for ease of use, `example_config.json`. Use this as a template to build your own rule set. The email alerts will be similar to these:
 
 ### Quota Alert
 
@@ -196,10 +196,12 @@ virtual_alias_maps = hash:/etc/postfix/virtual
 
 NOTE: It is good practice to back up the `main.cf` configuration before making changes.
 
-5. Restart `postfix` so that the above changes apply. To do so:
+5. Run `sudo postmap /etc/postfix/virtual` to activate.
+
+6. Reload `postfix` so that the above changes apply. To do so:
     `sudo service postfix reload`
 
-6. Test that you are able to send an email! From the same client running the `postfix` server, run the following commands one at a time, and pressing <ENTER> after each one:
+7. Test that you are able to send an email! From the same client running the `postfix` server, run the following commands one at a time, and pressing <ENTER> after each one:
 ```
 telnet localhost 25
 helo localhost.com (or whatever domain you chose in step 2)
@@ -234,7 +236,7 @@ If all the steps above completed successfully, you should see something like thi
     Connection closed by foreign host.
 ```
 
-7. Install `mailutils` so that you can see if you're getting email:
+8. Install `mailutils` so that you can see if you're getting email:
     `sudo apt install mailutils`
 
     Once installed, just run `mail` to see if you were able to get the test email. Alternatively, you can try and `cat /var/spool/mail/<username>`.
