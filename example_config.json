@@ -1,61 +1,158 @@
 {
-    "email_settings":{
-        "server_address":"your-domain.com",
-        "sender_address":"cluster@your-domain.com"
+    "capacity_rules": {
+        "Administrators Rule": {
+            "custom_msg": "Cluster is almost full.",
+            "mail_to": [
+                "admins@company.com",
+                "storage@company.com"
+            ],
+            "thresholds": [
+                85,
+                90,
+                95
+            ]
+        },
+        "Storage Users Rule": {
+            "custom_msg": "A custom message for these users. For info, see https://some.site.company.com",
+            "mail_to": [
+                "department@company.com"
+            ],
+            "thresholds": [
+                60,
+                65,
+                70
+            ]
+        }
     },
-    "cluster_settings":{
-        "cluster_name":"cluster",
-        "cluster_address":"cluster.eng.your-domain.com",
-        "username":"admin",
-        "password":"admin",
-        "rest_port":8000
+    "cluster_settings": {
+        "cluster_address": "cluster1.company.com",
+        "cluster_name": "cluster1",
+        "password": "password",
+        "rest_port": 8000,
+        "username": "admin"
     },
-    "quota_rules":[
-            {
-                "name":"FriendlyQuotaName",
-                "path":"/exact/cluster/path/",
-                "thresholds":[ 80.0, 90.0, 95.0 ],
-                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
-                "include_capacity":true,
-                "custom_msg":"A custom message to be sent to the recipients."
+    "default_quota_rules": {
+        "rules": {
+            "Default Quota Rule - Critical": {
+                "custom_msg": "CRITICAL - A quota is almost full.",
+                "include_capacity": true,
+                "mail_to": [
+                    "admins@company.com",
+                    "storage@company.com"
+                ],
+                "name": "Quota",
+                "thresholds": [
+                    80,
+                    85,
+                    90
+                ]
             },
-            {
-                "name":"AnotherFriendlyQuota",
-                "path":"/another_path/",
-                "thresholds":[ 80.0, 90.0, 95.0 ],
-                "mail_to":[ "users@your-domain.com" ],
-                "include_capacity":false,
-                "custom_msg":"Please follow up with IT at 1-800-111-11111"
+            "Default Quota Rule - Error": {
+                "custom_msg": "ERROR - A quota has reached capacity.",
+                "include_capacity": true,
+                "mail_to": [
+                    "admins@company.com",
+                    "storage@company.com"
+                ],
+                "name": "Quota",
+                "thresholds": [
+                    60,
+                    70,
+                    75
+                ]
             },
-            {
-                "name":"Example - Marketing - Videos",
-                "path":"/marketing/videos/",
-                "thresholds":[ 80.0, 90.0, 95.0 ],
-                "mail_to":[ "dl_makerting_mgr@your-company.com"],
-                "include_capacity":false,
-                "custom_msg":"Your team is close to exceeding its quota. Please follow up with IT at 1-800-111-1111 for additional storage."
+            "Default Quota Rule - Warning": {
+                "custom_msg": "WARNING - A quota has is reaching capacity.",
+                "include_capacity": true,
+                "mail_to": [
+                    "admins@company.com",
+                    "storage@company.com"
+                ],
+                "name": "Quota",
+                "thresholds": [
+                    50,
+                    55,
+                    60
+                ]
             }
-    ],
-    "capacity_rules":[
-            {
-                "thresholds":[ 75.0, 80.0, 90.0, 95.0 ],
-                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
-                "custom_msg":"Warning! Please do something, cluster almost full."
-            },
-            {
-                "thresholds":[ 80.0, 90.0, 95.0 ],
-                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
-                "custom_msg":""
+        }
+    },
+    "email_settings": {
+        "sender_address": "cluster1@company.com",
+        "server_address": "mail.corp.company.com"
+    },
+    "quota_rules": {
+        "/marketing/videos/": {
+            "rules": {
+                "Alert Marketing Department": {
+                    "custom_msg": "A custom message to be sent to the recipients.",
+                    "include_capacity": false,
+                    "mail_to": [
+                        "dl_makerting_mgr@company.com"
+                    ],
+                    "thresholds": [
+                        80,
+                        90,
+                        95
+                    ]
+                }
             }
-    ],
-    "replication_rules":[
-            {
-                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
-                "custom_msg":"Replication gone wrong on this cluster."
-            },
-            {
-                "mail_to":[ "admins@your-domain.com", "admins2@your-domain.com" ],
-                "custom_msg":""
+        },
+        "/sample_path1/subpath/": {
+            "rules": {
+                "Alert Specific Users": {
+                    "custom_msg": "Please follow up with IT at 1-800-111-11111",
+                    "include_capacity": false,
+                    "mail_to": [
+                        "users@company.com"
+                    ],
+                    "thresholds": [
+                        80,
+                        90,
+                        95
+                    ]
+                }
             }
-    ]
+        },
+        "/sample_path2/subpath/subpath/": {
+            "Alert Team Leads": {
+                "custom_msg": "Message to be sent to the recipients for this rule.",
+                "include_capacity": true,
+                "mail_to": [
+                    "lead1@company.com",
+                    "lead2@company.com"
+                ],
+                "rule_name": "Alert Team Leads",
+                "thresholds": [
+                    70,
+                    75,
+                    80
+                ]
+            },
+            "rules": {
+                "Alert Administrators": {
+                    "custom_msg": "Message to be sent to the recipients for this rule.",
+                    "include_capacity": true,
+                    "mail_to": [
+                        "admin1@company.com",
+                        "admin2@company.com"
+                    ],
+                    "thresholds": [
+                        85,
+                        90,
+                        95
+                    ]
+                }
+            }
+        }
+    },
+    "replication_rules": {
+        "Replication Rule": {
+            "custom_msg": "Replication has an issue on this cluster.",
+            "mail_to": [
+                "admins@company.com",
+                "storage@company.com"
+            ]
+        }
+    }
 }

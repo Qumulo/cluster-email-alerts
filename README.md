@@ -2,23 +2,42 @@
 
 ## Table of contents
 
+  * [Updates](#updates)
   * [Introduction](#introduction)
   * [Installation](#installation)
   * [Configuration](#configuration)
   * [Examples](#examples)
   * [Notes](#notes)
 
+## Updates
+
+  * 12/10/2020
+    * The configuration file JSON schema changed to enable new functionality.
+    * The script now supports a default rule that applies to all quotas. There is no need to define a rule for every quota.
+    * Multiple rules can now be specified per each of the checks, including default quota rules.
+    * Script now stores the alert history in a file to prevent alerting multiple times for the same condition.
+    * Script was updated to only alert if an condition is new or crosses a higher alerting threshold.
 
 ## Introduction
-This script generates email alerts for a Qumulo cluster using the REST API. The Qumulo API tools are required to make the script work and and they are available for download from your Qumulo cluster. For more information, please check out the [Qumulo GitHub](https://qumulo.github.io/) page for more information on the API. The script is aimed to be customized to the user's desire using 'alert rules' or a list of several JSON schemas; each with its own configuration. Currently, the script generates three different types of alerts:
+This script generates email alerts for a Qumulo cluster using the REST API. 
+
+The Qumulo API tools are required to make the script work and and they are available for download from your Qumulo cluster. For more information, please check out the [Qumulo GitHub](https://qumulo.github.io/) page for more information on the API. T
+
+he script is aimed to be customized to the user's desire using 'alert rules' or a list of several JSON schemas; each with its own configuration. Currently, the script generates three different types of alerts:
 
   * Cluster Capacity by Threshold
   * Directory Quotas by Threshold
   * Replication Relationships by Error (Both Source & Target)
 
-If any of the alert conditions are triggered, a single email will be sent to all of the configured recipients. Any alert can also include a custom message by filling in the `custom_msg` field for each 'rule'.
+If any of the alert conditions are triggered, a single email will be sent to all of the configured recipients. Any alert can also include a custom message by filling in the `custom_msg` field for each 'rule'. A summary of the expected behavior of this script is:
 
-The alert conditions are checked a single time when the script is run. The suggested method to run this script is via a `cron` job which periodically executes the script. For more information regarding `cron` please check out [Ubuntu's Cron How To](https://help.ubuntu.com/community/CronHowto).
+  * The alert conditions are checked a single time when the script is run.
+  * Any rules or alerts that are triggered are stored in a local file `history.json`.
+  * If the current alert condition matches an entry in the `history.json` file, then nothing is done.
+  * If the current alert condition matches and exceeds what is in the `history.json` file, then a new alert is sent.
+  * If the current rule condition does not match any alert, it is removed from the `history.json` file.
+
+The suggested method to run this script is via a `cron` job which periodically executes the script. For more information regarding `cron` please check out [Ubuntu's Cron How To](https://help.ubuntu.com/community/CronHowto).
 
 Lastly, all email alerts include a time stamp indicating when the alert was sent.
 
@@ -45,7 +64,7 @@ At this point, it is expected that you have a Qumulo cluster with the API Tools 
   1. Use `example_config.json` as a guide to creating a `config.json` with your alerting rules. The fields for this file are described after this section.
   2. Set up a `cron` job to run as often as you like to check for alerts. See [CronHowto](https://help.ubuntu.com/community/CronHowto) if you have any questions. Example command `./cluster_email_alerts.py --config /root/config.json`
 
-The `config.json` file contains 5 schemas and each can have multiple objects. These objects are what we call a `rule` and are individually interpreted by the script. The schemas are:
+The `config.json` file contains 6 stanzas and each can have multiple objects. These stanzas are groups objects of `rules` and are individually interpreted by the script. The stanzas are:
 
   1. Email Settings
      - `server_address` - The email server or relay that will route the emails sent by the script.
@@ -58,13 +77,24 @@ The `config.json` file contains 5 schemas and each can have multiple objects. Th
      - `password` - The password to access the REST API.
      - `rest_port` - The TCP port on which to access the REST API. Default of 8000.
 
-  3. Quota Rules - This rule triggers when a directory quota exceeds a used percentage threshold. The fields are:
-     - `name` - A friendly name for the quota alert as some paths can be very long or descriptive enough.
-     - `path` - The path on which a directory quota exists. This path will be looked up using the API to get the current usage.
-     - `thresholds` - A list of integers that describe the thresholds at which to send an alert. If exceeded, the script will only send the highest exceeded threshold for each rule.
-     - `mail_to` - A list of email addresses to send an alert to; only for this specific rule.
-     - `include_capacity` - A boolean that allows you to include or exclude including the current total capacity of the cluster.
-     - `custom_msg` - A field that will be included with each quota rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
+  3. Quota Rules - These rule triggers when a directory quota exceeds a used percentage threshold. The fields are:
+     - `quota_rules` - The top level stanza containing all DEFINED quota rules.
+       - `path` - The path on which a directory quota exists. This path will be looked up using the API to get the current usage.
+         - `rules` - The collection of rules for this particular path.
+           - `$RULE_NAME` - The friendly name of the rule. There can be multiple of these stanzas; one for each rule for this specific path.
+             - `thresholds` - A list of integers that describe the thresholds at which to send an alert. If exceeded, the script will only send the highest exceeded threshold for each rule.
+             - `mail_to` - A list of email addresses to send an alert to; only for this specific rule.
+             - `include_capacity` - A boolean that allows you to include or exclude including the current total capacity of the cluster.
+             - `custom_msg` - A field that will be included with each quota rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
+
+  4. Default Quota Rules - These rules trigger for all directory quotas that do NOT have a defined rule, in the `quota_rules` stanza.
+     - `default_quota_rules` - The top level stanza containing all NON-DEFINED quota rules.
+       - `rules` - The collection of rules for the default or non-defined quotas.
+         - `$RULE_NAME` - The friendly name of the rule. There can be multiple of these stanzas; one per rule.
+           - `thresholds` - A list of integers that describe the thresholds at which to send an alert. If exceeded, the script will only send the highest exceeded threshold for each rule.
+           - `mail_to` - A list of email addresses to send an alert to; only for this specific rule.
+           - `include_capacity` - A boolean that allows you to include or exclude including the current total capacity of the cluster.
+           - `custom_msg` - A field that will be included with each quota rule to provide instructions or guidance to the email recipients. If blank, it will not be included.
 
   4. Capacity Rules - This rule will trigger if the cluster exceeds a certain used percentage threshold. The fields are:
      - `thresholds` - Same as the quota, what thresholds to alert on. Only the highest matching threshold will be alerted on.
@@ -103,7 +133,9 @@ and write access to the user regardless of file system permissions.
      - Add multiple quota rules. Each one will be triggered individually.
   2. Will multiple emails be sent if a quota exceeds them?
      - No, a single email will be sent for the highest exceeded threshold.
-  3. How do I send different `custom_msg` depending on the threshold?
+  3. Will the same alert be sent if the quota has already exceeded a threshold?
+     - No, the alert state will be remembered in the `history.json` file. A new alert will only be sent if the next threshold is exceeded or if the alert condition is cleared and it re-alerts.
+  4. How do I send different `custom_msg` depending on the threshold?
      - Create multiple rules, with a different `custom_msg` each. Note that this can result in sending two emails, one for each rule.
 
 ## Examples
