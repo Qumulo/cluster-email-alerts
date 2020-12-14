@@ -12,14 +12,18 @@
 ## Updates
 
   * 12/10/2020
-  ** The configuration file JSON schema changed to enable new functionality.
-  ** The script now supports a default rule that applies to all quotas. There is no need to define a rule for every quota.
-  ** Multiple rules can now be specified per each of the checks, including default quota rules.
-  ** Script now stores the alert history in a file to prevent alerting multiple times for the same condition.
-  ** Script was updated to only alert if an condition is new or crosses a higher alerting threshold.
+    * The configuration file JSON schema changed to enable new functionality.
+    * The script now supports a default rule that applies to all quotas. There is no need to define a rule for every quota.
+    * Multiple rules can now be specified per each of the checks, including default quota rules.
+    * Script now stores the alert history in a file to prevent alerting multiple times for the same condition.
+    * Script was updated to only alert if an condition is new or crosses a higher alerting threshold.
 
 ## Introduction
-This script generates email alerts for a Qumulo cluster using the REST API. The Qumulo API tools are required to make the script work and and they are available for download from your Qumulo cluster. For more information, please check out the [Qumulo GitHub](https://qumulo.github.io/) page for more information on the API. The script is aimed to be customized to the user's desire using 'alert rules' or a list of several JSON schemas; each with its own configuration. Currently, the script generates three different types of alerts:
+This script generates email alerts for a Qumulo cluster using the REST API. 
+
+The Qumulo API tools are required to make the script work and and they are available for download from your Qumulo cluster. For more information, please check out the [Qumulo GitHub](https://qumulo.github.io/) page for more information on the API. T
+
+he script is aimed to be customized to the user's desire using 'alert rules' or a list of several JSON schemas; each with its own configuration. Currently, the script generates three different types of alerts:
 
   * Cluster Capacity by Threshold
   * Directory Quotas by Threshold
@@ -31,6 +35,7 @@ If any of the alert conditions are triggered, a single email will be sent to all
   * Any rules or alerts that are triggered are stored in a local file `history.json`.
   * If the current alert condition matches an entry in the `history.json` file, then nothing is done.
   * If the current alert condition matches and exceeds what is in the `history.json` file, then a new alert is sent.
+  * If the current rule condition does not match any alert, it is removed from the `history.json` file.
 
 The suggested method to run this script is via a `cron` job which periodically executes the script. For more information regarding `cron` please check out [Ubuntu's Cron How To](https://help.ubuntu.com/community/CronHowto).
 
