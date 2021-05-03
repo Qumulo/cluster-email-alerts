@@ -128,5 +128,48 @@ class HumanizeBytesHelperTest(unittest.TestCase):
         self.assertEqual(f'6.0{suffix}B', humanize_bytes(6 * scale))
 
 
+class QuotasTest(unittest.TestCase):
+    def setUp(self):
+        self.config = {
+            'quota_rules': {
+                'a': { 'defined': 'defined rule' },
+            },
+            'default_quota_rules': {
+                'undefined': 'undefined rule'
+            }
+        }
+
+    def test_process_quotas_and_rules_empty(self):
+        quotas = {}
+        processed_quotas = process_quotas_and_rules(quotas, self.config)
+
+        # Empty iterables evaluate to false
+        self.assertFalse(processed_quotas)
+
+    def test_process_quotas_and_rules_defined(self):
+        quotas = {
+            'a': { 'provided': 'provided rule' },
+        }
+
+        processed_quotas = process_quotas_and_rules(quotas, self.config)
+        processed_quota = processed_quotas['a']
+
+        for word in ['provided', 'defined']:
+            self.assertIn(word, processed_quota)
+        self.assertNotIn('undefined', processed_quota)
+
+    def test_process_quotas_and_rules_undefined(self):
+        quotas = {
+            'none': { 'provided': 'provided rule' },
+        }
+
+        processed_quotas = process_quotas_and_rules(quotas, self.config)
+        processed_quota = processed_quotas['none']
+
+        for word in ['provided', 'undefined']:
+            self.assertIn(word, processed_quota)
+        self.assertNotIn('defined', processed_quota)
+
+
 if __name__ == "__main__":
     unittest.main()
