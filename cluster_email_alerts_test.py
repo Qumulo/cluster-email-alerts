@@ -6,7 +6,7 @@ import unittest
 
 from parameterized import parameterized
 
-from cluster_email_alerts import load_json, humanize_bytes, load_config, load_history
+from cluster_email_alerts import *
 
 class LoadHelpersTest(unittest.TestCase):
     def setUp(self):
@@ -66,6 +66,28 @@ class LoadHelpersTest(unittest.TestCase):
 
         for key in ['quotas', 'capacity', 'replication']:
             self.assertIn(key, default_history_dict)
+
+    def test_save_history_writes_to_file(self) -> None:
+        history_dict = {
+            'quotas': 100,
+            'capacity': 12,
+            'replication': False
+        }
+
+        save_history(self.test_file_name, history_dict)
+
+        with open(self.test_file_name, 'r') as history_file:
+            self.assertEqual(history_dict, json.load(history_file))
+
+    def test_history_round_trip(self) -> None:
+        history_dict = {
+            'quotas': 100,
+            'capacity': 12,
+            'replication': False
+        }
+
+        save_history(self.test_file_name, history_dict)
+        self.assertEqual(history_dict, load_history(self.test_file_name))
 
 
 class HumanizeBytesHelperTest(unittest.TestCase):

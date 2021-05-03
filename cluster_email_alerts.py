@@ -126,13 +126,9 @@ def load_history(history_file: str) -> Dict[str, Any]:
 
 def save_history(history_file: str, history: Dict[str, Any]) -> None:
     """Save the updated history file, if available."""
-
     log.debug(f'Updating history file: {history_file}')
-    history_json = json.dumps(history)
-
     with open(history_file, 'w') as f:
-        f.write(history_json)
-        f.close()
+        json.dump(history, f)
 
 
 def get_email_settings(config: Dict[str, Any], no_emails: bool) -> EmailSettings:
