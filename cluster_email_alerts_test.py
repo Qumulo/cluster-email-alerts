@@ -6,9 +6,9 @@ import unittest
 
 from parameterized import parameterized
 
-from cluster_email_alerts import load_json, humanize_bytes
+from cluster_email_alerts import load_json, humanize_bytes, load_config, load_history
 
-class LoadJsonHelperTest(unittest.TestCase):
+class LoadHelpersTest(unittest.TestCase):
     def setUp(self):
         self.test_file_name = "test_file"
 
@@ -16,7 +16,7 @@ class LoadJsonHelperTest(unittest.TestCase):
         if os.path.exists(self.test_file_name):
             os.remove(self.test_file_name)
 
-    def test_happy_case(self) -> None:
+    def test_load_json_with_valid_json(self) -> None:
         json_dict = {
             'foo': 'bar',
             'baz': 'fug',
@@ -27,12 +27,45 @@ class LoadJsonHelperTest(unittest.TestCase):
 
         self.assertEqual(json_dict, load_json(self.test_file_name))
 
-    def test_invalid_json_causes_sys_exit(self) -> None:
+    def test_load_json_with_invalid_json_causes_sys_exit(self) -> None:
         with open(self.test_file_name, 'w') as bad_json_file:
             bad_json_file.write("foobar")
 
         with self.assertRaises(SystemExit):
             load_json(self.test_file_name)
+
+    def test_load_config_with_existing_file(self) -> None:
+        config_dict = {
+            'important_switch': 'off',
+            'destroy_all_data': True
+        }
+
+        with open(self.test_file_name, 'w') as json_file:
+            json.dump(config_dict, json_file)
+
+        self.assertEqual(config_dict, load_config(self.test_file_name))
+
+    def test_load_config_without_existing_file_causes_sys_exit(self) -> None:
+        with self.assertRaises(SystemExit):
+            load_config(self.test_file_name)
+
+    def test_load_history_with_existing_file(self) -> None:
+        history_dict = {
+            'quotas': 100,
+            'capacity': 12,
+            'replication': False
+        }
+
+        with open(self.test_file_name, 'w') as json_file:
+            json.dump(history_dict, json_file)
+
+        self.assertEqual(history_dict, load_history(self.test_file_name))
+
+    def test_load_history_without_existing_file_returns_empty(self) -> None:
+        default_history_dict = load_history(self.test_file_name)
+
+        for key in ['quotas', 'capacity', 'replication']:
+            self.assertIn(key, default_history_dict)
 
 
 class HumanizeBytesHelperTest(unittest.TestCase):
