@@ -118,14 +118,8 @@ PRIVILEGE_REPLICATION_TARGET_READ
 
 The `Observers` role is configured with these (and other) privileges by default.
 
-The user must also be granted file system permission to traverse to and to read
-the directories configured with alerts. For example, for an alert on path
-`/foo/bar/`, the user must have Traverse permission on `/` and `foo/`, and Read
-permission on `bar/`.
-
-Alternatively to configuring file system permissions, the user can be granted
-the Qumulo role `PRIVILEGE_FILE_FULL_ACCESS`. This privilege confers full read
-and write access to the user regardless of file system permissions.
+* On clusters running Qumulo Core 4.1.3 and older, the user must also be granted file system permission to traverse to and to read the directories configured with alerts. For example, for an alert on path `/foo/bar/`, the user must have Traverse permission on `/` and `foo/`, and Read permission on `bar/`. Alternatively to configuring file system permissions, the user can be granted the Qumulo role `PRIVILEGE_FILE_FULL_ACCESS`. This privilege confers full read and write access to the user regardless of file system permissions.
+* On clusters running Qumulo Core 4.1.4 and newer, no explicit file systerm permission is needed to make the script work.
 
 ## FAQ
 
