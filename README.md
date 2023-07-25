@@ -1,7 +1,3 @@
-# Deprecation Notice
-
-**This software will shortly be deprecated and archived. If you have any issues, please reach out to [Michael Kade](mailto:mkade@qumulo.com) directly.**
-
 # Cluster Alerts for Qumulo
 
 ## Table of contents
@@ -280,3 +276,54 @@ sudo apt-get purge postfix
 
 Then reinstall `postfix` with:
     `sudo apt-get install postfix`
+
+## Support Statement
+
+This software is provided AS-IS and there is no specific SLA on response times on inquires regarding functionality, performance, or perceived software deficiencies. If you wish to report an issue, Please use GitHub Issues or your Qumulo Care Slack channel for assistance.
+
+## Help
+
+Use the [Issues](https://github.com/Qumulo/cluster-email-alerts/issues) section of this GitHub repo to post feedback or report bugs.
+
+## Copyright
+
+Copyright © 2023 [Qumulo, Inc.](https://qumulo.com)
+
+## License
+
+[![License](https://img.shields.io/badge/license-MIT-green)](https://opensource.org/licenses/MIT)
+
+See [LICENSE](LICENSE) for full details
+
+```plaintext
+MIT License
+
+Copyright (c) 2022 Qumulo, Inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+## Trademarks
+
+All other trademarks referenced herein are the property of their respective owners.
+
+## Contributors
+
+*   [Berat Ulualan](https://github.com/beratulualan)
+*   [Michael Kade](https://github.com/mikekade)
