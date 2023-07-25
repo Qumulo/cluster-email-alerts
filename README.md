@@ -11,7 +11,10 @@
 
 ## Updates
 
-  * 12/10/2020
+  * July 25, 2023
+    * Removed deprecation notice. Please see Support Statement (below) on limitations regarding SLA for this software.
+      
+  * December 10, 2020
     * The configuration file JSON schema changed to enable new functionality.
     * The script now supports a default rule that applies to all quotas. There is no need to define a rule for every quota.
     * Multiple rules can now be specified per each of the checks, including default quota rules.
